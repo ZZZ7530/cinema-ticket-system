@@ -11,6 +11,14 @@
 #include <vector>
 
 namespace {
+const std::string RESET = "\033[0m";
+const std::string CYAN = "\033[96m";
+const std::string BLUE = "\033[94m";
+const std::string GREEN = "\033[92m";
+const std::string RED = "\033[91m";
+const std::string YELLOW = "\033[93m";
+const std::string DIM = "\033[2m";
+
 std::string normalizeSeatNo(std::string seatNo) {
     if (!seatNo.empty()) {
         seatNo[0] = static_cast<char>(std::toupper(static_cast<unsigned char>(seatNo[0])));
@@ -27,6 +35,81 @@ bool isPositiveNumberText(const std::string& text) {
 
 UIManager::UIManager(CinemaSystem& cinemaSystem) : cinemaSystem(cinemaSystem) {}
 
+std::string UIManager::colorText(const std::string& text, const std::string& colorCode) const {
+    return colorCode + text + RESET;
+}
+
+void UIManager::printDivider() const {
+    std::cout << colorText("────────────────────────────────────────", DIM) << std::endl;
+}
+
+void UIManager::printPageTitle(const std::string& title) const {
+    std::cout << std::endl;
+    std::cout << colorText("────────────────────────────────────────", BLUE) << std::endl;
+    std::cout << colorText(title, CYAN) << std::endl;
+    std::cout << colorText("────────────────────────────────────────", BLUE) << std::endl;
+}
+
+void UIManager::printBoxTitle(const std::string& title) const {
+    std::cout << colorText("╔════════════════════════════════════╗", CYAN) << std::endl;
+    std::cout << colorText("║          " + title, CYAN) << std::endl;
+    std::cout << colorText("╚════════════════════════════════════╝", CYAN) << std::endl;
+}
+
+void UIManager::printSuccess(const std::string& message) const {
+    std::cout << colorText("[成功] " + message, GREEN) << std::endl;
+}
+
+void UIManager::printError(const std::string& message) const {
+    std::cout << colorText("[錯誤] " + message, RED) << std::endl;
+}
+
+void UIManager::printWarning(const std::string& message) const {
+    std::cout << colorText("[警告] " + message, YELLOW) << std::endl;
+}
+
+void UIManager::printInfo(const std::string& message) const {
+    std::cout << colorText("[提示] " + message, CYAN) << std::endl;
+}
+
+void UIManager::printMainMenu() const {
+    std::cout << std::endl;
+    std::cout << colorText("╔══════════════════════════════════════════════╗", CYAN) << std::endl;
+    std::cout << colorText("║              電影院售票管理系統              ║", CYAN) << std::endl;
+    std::cout << colorText("╠══════════════════════════════════════════════╣", CYAN) << std::endl;
+    std::cout << "║ 資料狀態：電影 " << cinemaSystem.getMovieCount()
+              << " 筆｜場次 " << cinemaSystem.getShowtimeCount()
+              << " 筆｜票券 " << cinemaSystem.getTicketCount() << " 筆     ║" << std::endl;
+    std::cout << colorText("╠══════════════════════════════════════════════╣", CYAN) << std::endl;
+    std::cout << "║  " << colorText("1", YELLOW) << ". 電影管理                                 ║" << std::endl;
+    std::cout << "║  " << colorText("2", YELLOW) << ". 場次管理                                 ║" << std::endl;
+    std::cout << "║  " << colorText("3", YELLOW) << ". 購買電影票                               ║" << std::endl;
+    std::cout << "║  " << colorText("4", YELLOW) << ". 退票                                     ║" << std::endl;
+    std::cout << "║  " << colorText("5", YELLOW) << ". 查詢票券                                 ║" << std::endl;
+    std::cout << "║  " << colorText("6", YELLOW) << ". 查看座位表                               ║" << std::endl;
+    std::cout << "║  " << colorText("7", YELLOW) << ". 營收統計                                 ║" << std::endl;
+    std::cout << "║  " << colorText("8", YELLOW) << ". 儲存資料                                 ║" << std::endl;
+    std::cout << "║  " << colorText("0", YELLOW) << ". 離開系統                                 ║" << std::endl;
+    std::cout << colorText("╚══════════════════════════════════════════════╝", CYAN) << std::endl;
+}
+
+void UIManager::printSubMenu(const std::string& title, const std::vector<std::string>& items) const {
+    std::cout << std::endl;
+    std::cout << colorText("╔══════════════════════╗", CYAN) << std::endl;
+    std::cout << colorText("║       " + title + "        ║", CYAN) << std::endl;
+    std::cout << colorText("╠══════════════════════╣", CYAN) << std::endl;
+    for (const auto& item : items) {
+        const std::size_t dotPos = item.find('.');
+        if (dotPos != std::string::npos) {
+            std::cout << "║  " << colorText(item.substr(0, dotPos), YELLOW)
+                      << item.substr(dotPos) << "        ║" << std::endl;
+        } else {
+            std::cout << "║  " << item << "        ║" << std::endl;
+        }
+    }
+    std::cout << colorText("╚══════════════════════╝", CYAN) << std::endl;
+}
+
 int UIManager::readMenuChoice(int minChoice, int maxChoice) {
     int choice = -1;
 
@@ -37,11 +120,11 @@ int UIManager::readMenuChoice(int minChoice, int maxChoice) {
             if (choice >= minChoice && choice <= maxChoice) {
                 return choice;
             }
-            std::cout << "[錯誤] 沒有這個選項，請重新輸入。" << std::endl;
+            printError("請輸入有效的數字選項。");
         } else {
             std::cin.clear();
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            std::cout << "[錯誤] 請輸入數字選項。" << std::endl;
+            printError("請輸入有效的數字選項。");
         }
     }
 }
@@ -56,11 +139,11 @@ int UIManager::readPositiveInt(const std::string& prompt) {
             if (value > 0) {
                 return value;
             }
-            std::cout << "[錯誤] 請輸入正整數。" << std::endl;
+            printError("請輸入正整數。");
         } else {
             std::cin.clear();
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            std::cout << "[錯誤] 請輸入數字。" << std::endl;
+            printError("請輸入有效的數字。");
         }
     }
 }
@@ -74,7 +157,7 @@ std::string UIManager::readRequiredLine(const std::string& prompt) {
         if (!value.empty()) {
             return value;
         }
-        std::cout << "[錯誤] 輸入不能為空。" << std::endl;
+        printError("輸入不能為空。");
     }
 }
 
@@ -91,152 +174,155 @@ bool UIManager::askYesNo(const std::string& question) {
             return false;
         }
 
-        std::cout << "[錯誤] 請輸入 y 或 n。" << std::endl;
+        printError("請輸入 y 或 n。");
     }
 }
 
 void UIManager::pause() const {
     std::cout << std::endl;
-    std::cout << "按 Enter 返回...";
+    std::cout << colorText("按 Enter 返回...", DIM);
     std::cin.get();
 }
 
 void UIManager::showNotImplemented(const std::string& featureName) const {
     std::cout << std::endl;
-    std::cout << "[提示] " << featureName << " 功能尚未實作，將於後續 Iteration 完成。" << std::endl;
+    printInfo(featureName + " 功能尚未實作，將於後續 Iteration 完成。");
     pause();
 }
 
 void UIManager::showLoadWarningsIfAny() const {
     if (!cinemaSystem.getLoadWarnings().empty()) {
         std::cout << std::endl;
-        std::cout << "[警告] 載入資料時發現以下問題：" << std::endl;
+        printWarning("載入資料時發現以下問題：");
         showWarnings(cinemaSystem.getLoadWarnings());
     }
 }
 
 void UIManager::showWarnings(const std::vector<std::string>& warnings) const {
     for (const auto& warning : warnings) {
-        std::cout << "[警告] " << warning << std::endl;
+        printWarning(warning);
     }
 }
 
 void UIManager::displayMovieTable(const std::vector<Movie>& movies) const {
     if (movies.empty()) {
-        std::cout << "[提示] 目前沒有電影資料" << std::endl;
+        printInfo("目前沒有電影資料");
         return;
     }
 
-    std::cout << "------------------------------------------------------------" << std::endl;
-    std::cout << "ID | 片名 | 類型 | 片長" << std::endl;
-    std::cout << "------------------------------------------------------------" << std::endl;
     for (const auto& movie : movies) {
-        std::cout << movie.getMovieId() << " | "
-                  << movie.getTitle() << " | "
-                  << movie.getGenre() << " | "
-                  << movie.getDuration() << " 分鐘" << std::endl;
+        printDivider();
+        std::cout << "電影 ID：" << movie.getMovieId() << std::endl;
+        std::cout << "片名：" << movie.getTitle() << std::endl;
+        std::cout << "類型：" << movie.getGenre() << std::endl;
+        std::cout << "片長：" << movie.getDuration() << " 分鐘" << std::endl;
     }
-    std::cout << "------------------------------------------------------------" << std::endl;
+    printDivider();
 }
 
 void UIManager::displayShowtimeTable(const std::vector<Showtime>& showtimes) const {
     if (showtimes.empty()) {
-        std::cout << "[提示] 此電影目前沒有場次" << std::endl;
+        printInfo("此電影目前沒有場次");
         return;
     }
 
-    std::cout << "--------------------------------------------------------------------------------" << std::endl;
-    std::cout << "場次ID | 電影名稱 | 日期 | 時間 | 影廳 | 座位數 | 已售出" << std::endl;
-    std::cout << "--------------------------------------------------------------------------------" << std::endl;
     for (const auto& showtime : showtimes) {
         const int totalSeats = showtime.getRows() * showtime.getCols();
         const int soldCount = static_cast<int>(showtime.getSoldSeats().size());
-        std::cout << showtime.getShowtimeId() << " | "
-                  << cinemaSystem.getMovieTitleById(showtime.getMovieId()) << " | "
-                  << showtime.getDate() << " | "
-                  << showtime.getTime() << " | "
-                  << showtime.getHall() << " | "
-                  << totalSeats << " | "
-                  << soldCount << std::endl;
+        printDivider();
+        std::cout << "場次 ID：" << showtime.getShowtimeId() << std::endl;
+        std::cout << "電影：" << cinemaSystem.getMovieTitleById(showtime.getMovieId()) << std::endl;
+        std::cout << "日期時間：" << showtime.getDate() << " " << showtime.getTime() << std::endl;
+        std::cout << "影廳：" << showtime.getHall() << std::endl;
+        std::cout << "座位數：" << totalSeats << "，已售出：" << soldCount << std::endl;
     }
-    std::cout << "--------------------------------------------------------------------------------" << std::endl;
+    printDivider();
 }
 
 void UIManager::displayTicket(const Ticket& ticket) const {
-    std::cout << ticket.getTicketId() << " | "
-              << ticket.getMovieTitle() << " | "
-              << ticket.getShowtimeId() << " | "
-              << ticket.getSeatNo() << " | "
-              << ticket.getTicketType() << " | "
-              << ticket.calculatePrice() << std::endl;
+    std::cout << "票號：" << ticket.getTicketId() << std::endl;
+    std::cout << "電影：" << ticket.getMovieTitle() << std::endl;
+    std::cout << "場次：" << ticket.getShowtimeId() << std::endl;
+    std::cout << "座位：" << ticket.getSeatNo() << std::endl;
+    std::cout << "票種：" << ticket.getTicketType() << std::endl;
+    std::cout << "票價：NT$" << ticket.calculatePrice() << std::endl;
 }
 
 void UIManager::displayTicketTable() const {
     const auto& tickets = cinemaSystem.getTickets();
     if (tickets.empty()) {
-        std::cout << "[提示] 目前沒有已售出票券" << std::endl;
+        printInfo("目前沒有已售出票券");
         return;
     }
 
-    std::cout << "--------------------------------------------------------------------------------" << std::endl;
-    std::cout << "票號 | 電影名稱 | 場次 ID | 座位 | 票種 | 票價" << std::endl;
-    std::cout << "--------------------------------------------------------------------------------" << std::endl;
     for (const auto& ticket : tickets) {
         if (ticket) {
+            printDivider();
             displayTicket(*ticket);
         }
     }
-    std::cout << "--------------------------------------------------------------------------------" << std::endl;
+    printDivider();
+}
+
+void UIManager::displaySeatMap(const Showtime& showtime) const {
+    std::cout << std::endl;
+    std::cout << colorText("╔════════════════════════════════════╗", CYAN) << std::endl;
+    std::cout << colorText("║          座位表 - " + showtime.getShowtimeId() + " " + showtime.getHall() + "         ║", CYAN) << std::endl;
+    std::cout << colorText("╚════════════════════════════════════╝", CYAN) << std::endl;
+    std::cout << std::endl;
+    std::cout << "        ";
+    for (int col = 1; col <= showtime.getCols(); ++col) {
+        std::cout << col << "   ";
+    }
+    std::cout << std::endl;
+
+    for (int row = 0; row < showtime.getRows(); ++row) {
+        const char rowChar = static_cast<char>('A' + row);
+        std::cout << "   " << rowChar << "    ";
+        for (int col = 1; col <= showtime.getCols(); ++col) {
+            const std::string seatNo = std::string(1, rowChar) + std::to_string(col);
+            if (showtime.isSeatSold(seatNo)) {
+                std::cout << colorText("X", RED) << "   ";
+            } else {
+                std::cout << colorText("O", GREEN) << "   ";
+            }
+        }
+        std::cout << std::endl;
+    }
+
+    std::cout << std::endl;
+    std::cout << "說明：" << colorText("O = 可選座位", GREEN)
+              << "，" << colorText("X = 已售出座位", RED) << std::endl;
 }
 
 void UIManager::showMainMenu() const {
-    std::cout << std::endl;
-    std::cout << "========================================" << std::endl;
-    std::cout << "        電影院售票管理系統" << std::endl;
-    std::cout << "========================================" << std::endl;
-    std::cout << "資料狀態：電影 " << cinemaSystem.getMovieCount()
-              << " 筆｜場次 " << cinemaSystem.getShowtimeCount()
-              << " 筆｜票券 " << cinemaSystem.getTicketCount() << " 筆" << std::endl;
-    std::cout << "----------------------------------------" << std::endl;
-    std::cout << "1. 電影管理" << std::endl;
-    std::cout << "2. 場次管理" << std::endl;
-    std::cout << "3. 購買電影票" << std::endl;
-    std::cout << "4. 退票" << std::endl;
-    std::cout << "5. 查詢票券" << std::endl;
-    std::cout << "6. 查看座位表" << std::endl;
-    std::cout << "7. 營收統計" << std::endl;
-    std::cout << "8. 儲存資料" << std::endl;
-    std::cout << "0. 離開系統" << std::endl;
-    std::cout << "========================================" << std::endl;
+    printMainMenu();
 }
 
 void UIManager::addMovie() {
-    std::cout << std::endl;
-    std::cout << "========== 新增電影 ==========" << std::endl;
+    printPageTitle("[電影管理] 新增電影");
     const std::string title = readRequiredLine("請輸入片名：");
     const std::string genre = readRequiredLine("請輸入類型：");
     const int duration = readPositiveInt("請輸入片長（分鐘）：");
 
     const Movie movie = cinemaSystem.addMovie(title, genre, duration);
-    std::cout << "[成功] 電影新增完成，電影 ID：" << movie.getMovieId() << std::endl;
+    printSuccess("電影新增完成，電影 ID：" + movie.getMovieId());
     pause();
 }
 
 void UIManager::showAllMovies() {
-    std::cout << std::endl;
-    std::cout << "========== 所有電影 ==========" << std::endl;
+    printPageTitle("[電影管理] 顯示所有電影");
     displayMovieTable(cinemaSystem.getMovies());
     pause();
 }
 
 void UIManager::searchMovie() {
-    std::cout << std::endl;
-    std::cout << "========== 查詢電影 ==========" << std::endl;
+    printPageTitle("[電影管理] 查詢電影");
     const std::string keyword = readRequiredLine("請輸入電影 ID 或片名關鍵字：");
     const std::vector<Movie> results = cinemaSystem.searchMovies(keyword);
 
     if (results.empty()) {
-        std::cout << "[錯誤] 找不到電影" << std::endl;
+        printError("找不到指定 ID 或片名關鍵字。");
     } else {
         displayMovieTable(results);
     }
@@ -244,19 +330,18 @@ void UIManager::searchMovie() {
 }
 
 void UIManager::deleteMovie() {
-    std::cout << std::endl;
-    std::cout << "========== 刪除電影 ==========" << std::endl;
+    printPageTitle("[電影管理] 刪除電影");
     const std::string movieId = readRequiredLine("請輸入要刪除的電影 ID：");
 
     const Movie* movie = cinemaSystem.findMovieById(movieId);
     if (movie == nullptr) {
-        std::cout << "[錯誤] 找不到電影" << std::endl;
+        printError("找不到指定 ID。");
         pause();
         return;
     }
 
     if (cinemaSystem.hasShowtimesForMovie(movieId)) {
-        std::cout << "[錯誤] 此電影已有場次，禁止刪除。請先移除相關場次後再刪除。" << std::endl;
+        printWarning("此電影已有場次，禁止刪除。請先移除相關場次後再刪除。");
         pause();
         return;
     }
@@ -264,25 +349,24 @@ void UIManager::deleteMovie() {
     std::vector<Movie> preview = {*movie};
     displayMovieTable(preview);
     if (!askYesNo("確定要刪除此電影嗎")) {
-        std::cout << "[提示] 已取消刪除" << std::endl;
+        printInfo("已取消刪除");
         pause();
         return;
     }
 
     std::string message;
     if (cinemaSystem.deleteMovie(movieId, message)) {
-        std::cout << "[成功] 電影已刪除" << std::endl;
+        printSuccess("電影已刪除");
     } else {
-        std::cout << "[錯誤] " << message << std::endl;
+        printError(message);
     }
     pause();
 }
 
 void UIManager::addShowtime() {
-    std::cout << std::endl;
-    std::cout << "========== 新增電影場次 ==========" << std::endl;
+    printPageTitle("[場次管理] 新增電影場次");
     if (cinemaSystem.getMovies().empty()) {
-        std::cout << "[錯誤] 目前沒有電影資料，請先新增電影。" << std::endl;
+        printError("目前沒有電影資料，請先新增電影。");
         pause();
         return;
     }
@@ -290,7 +374,7 @@ void UIManager::addShowtime() {
     displayMovieTable(cinemaSystem.getMovies());
     const std::string movieId = readRequiredLine("請輸入電影 ID：");
     if (cinemaSystem.findMovieById(movieId) == nullptr) {
-        std::cout << "[錯誤] 電影 ID 不存在" << std::endl;
+        printError("找不到指定 ID。");
         pause();
         return;
     }
@@ -302,25 +386,23 @@ void UIManager::addShowtime() {
     const int cols = readPositiveInt("請輸入座位行數 cols：");
 
     const Showtime showtime = cinemaSystem.addShowtime(movieId, date, time, hall, rows, cols);
-    std::cout << "[成功] 場次新增完成，場次 ID：" << showtime.getShowtimeId() << std::endl;
+    printSuccess("場次新增完成，場次 ID：" + showtime.getShowtimeId());
     pause();
 }
 
 void UIManager::showAllShowtimes() {
-    std::cout << std::endl;
-    std::cout << "========== 所有場次 ==========" << std::endl;
+    printPageTitle("[場次管理] 顯示所有場次");
     displayShowtimeTable(cinemaSystem.getShowtimes());
     pause();
 }
 
 void UIManager::searchShowtimesByMovie() {
-    std::cout << std::endl;
-    std::cout << "========== 查詢指定電影場次 ==========" << std::endl;
+    printPageTitle("[場次管理] 查詢指定電影場次");
     const std::string keyword = readRequiredLine("請輸入電影 ID 或片名關鍵字：");
     const std::vector<Movie> movies = cinemaSystem.searchMovies(keyword);
 
     if (movies.empty()) {
-        std::cout << "[錯誤] 找不到電影" << std::endl;
+        printError("找不到指定 ID 或片名關鍵字。");
         pause();
         return;
     }
@@ -331,28 +413,23 @@ void UIManager::searchShowtimesByMovie() {
 }
 
 void UIManager::buyTicket() {
-    std::cout << std::endl;
-    std::cout << "========== 購買電影票 ==========" << std::endl;
+    printPageTitle("[購票流程] 選擇電影");
     const auto& movies = cinemaSystem.getMovies();
     if (movies.empty()) {
-        std::cout << "[錯誤] 目前沒有電影資料" << std::endl;
+        printError("目前沒有電影資料");
         pause();
         return;
     }
 
-    std::cout << "可輸入電影 ID，或輸入左側序號選擇電影。" << std::endl;
-    std::cout << "------------------------------------------------------------" << std::endl;
-    std::cout << "序號 | ID | 片名 | 類型 | 片長" << std::endl;
-    std::cout << "------------------------------------------------------------" << std::endl;
+    printInfo("可輸入電影 ID，或輸入左側序號選擇電影。");
+    printDivider();
     for (std::size_t i = 0; i < movies.size(); ++i) {
         const Movie& movie = movies[i];
-        std::cout << (i + 1) << " | "
-                  << movie.getMovieId() << " | "
-                  << movie.getTitle() << " | "
-                  << movie.getGenre() << " | "
-                  << movie.getDuration() << " 分鐘" << std::endl;
+        std::cout << colorText(std::to_string(i + 1) + ".", YELLOW) << " "
+                  << movie.getMovieId() << "｜" << movie.getTitle()
+                  << "｜" << movie.getGenre() << "｜" << movie.getDuration() << " 分鐘" << std::endl;
     }
-    std::cout << "------------------------------------------------------------" << std::endl;
+    printDivider();
 
     const std::string movieInput = readRequiredLine("請輸入電影 ID 或序號：");
     std::string movieId = movieInput;
@@ -364,14 +441,15 @@ void UIManager::buyTicket() {
     }
 
     if (cinemaSystem.findMovieById(movieId) == nullptr) {
-        std::cout << "[錯誤] 電影 ID 不存在" << std::endl;
+        printError("找不到指定 ID。");
         pause();
         return;
     }
 
+    printPageTitle("[購票流程] 選擇場次");
     const std::vector<Showtime> showtimes = cinemaSystem.searchShowtimesByMovie(movieId);
     if (showtimes.empty()) {
-        std::cout << "[提示] 此電影目前沒有場次" << std::endl;
+        printInfo("此電影目前沒有場次");
         pause();
         return;
     }
@@ -380,34 +458,34 @@ void UIManager::buyTicket() {
     const std::string showtimeId = readRequiredLine("請輸入場次 ID：");
     const Showtime* showtime = cinemaSystem.findShowtimeById(showtimeId);
     if (showtime == nullptr) {
-        std::cout << "[錯誤] 場次 ID 不存在" << std::endl;
+        printError("找不到指定 ID。");
         pause();
         return;
     }
     if (showtime->getMovieId() != movieId) {
-        std::cout << "[錯誤] 此場次不屬於所選電影" << std::endl;
+        printError("此場次不屬於所選電影。");
         pause();
         return;
     }
 
-    showtime->displaySeatMap();
+    printPageTitle("[購票流程] 選擇座位");
+    displaySeatMap(*showtime);
     const std::string seatNo = normalizeSeatNo(readRequiredLine("請輸入座位（例如 A3）："));
     if (!showtime->isSeatValid(seatNo)) {
-        std::cout << "[錯誤] 座位格式錯誤或超出範圍" << std::endl;
+        printError("座位格式錯誤或超出範圍。");
         pause();
         return;
     }
     if (showtime->isSeatSold(seatNo)) {
-        std::cout << "[錯誤] 座位已售出" << std::endl;
+        printWarning("此座位已售出，請選擇其他座位。");
         pause();
         return;
     }
 
-    std::cout << std::endl;
-    std::cout << "========== 選擇票種 ==========" << std::endl;
-    std::cout << "1. 成人票 320" << std::endl;
-    std::cout << "2. 學生票 280" << std::endl;
-    std::cout << "3. 兒童票 220" << std::endl;
+    printPageTitle("[購票流程] 選擇票種");
+    std::cout << colorText("1", YELLOW) << ". 成人票 320" << std::endl;
+    std::cout << colorText("2", YELLOW) << ". 學生票 280" << std::endl;
+    std::cout << colorText("3", YELLOW) << ". 兒童票 220" << std::endl;
     const int ticketTypeChoice = readMenuChoice(1, 3);
 
     std::string ticketType;
@@ -420,16 +498,11 @@ void UIManager::buyTicket() {
     }
 
     std::unique_ptr<Ticket> preview = createTicketByType("預覽票號", showtimeId, cinemaSystem.getMovieTitleById(movieId), seatNo, ticketType);
-    std::cout << std::endl;
-    std::cout << "========== 票券資訊 ==========" << std::endl;
-    std::cout << "電影：" << preview->getMovieTitle() << std::endl;
-    std::cout << "場次：" << preview->getShowtimeId() << std::endl;
-    std::cout << "座位：" << preview->getSeatNo() << std::endl;
-    std::cout << "票種：" << preview->getTicketType() << std::endl;
-    std::cout << "票價：" << preview->calculatePrice() << std::endl;
+    printPageTitle("[購票流程] 確認票券");
+    displayTicket(*preview);
 
     if (!askYesNo("是否確認購買")) {
-        std::cout << "[提示] 已取消購買" << std::endl;
+        printInfo("已取消購買");
         pause();
         return;
     }
@@ -437,71 +510,67 @@ void UIManager::buyTicket() {
     std::string message;
     Ticket* ticket = cinemaSystem.purchaseTicket(showtimeId, seatNo, ticketType, message);
     if (ticket == nullptr) {
-        std::cout << "[錯誤] " << message << std::endl;
+        printError(message);
     } else {
-        std::cout << "[成功] 購票完成，票號：" << ticket->getTicketId() << std::endl;
+        std::cout << std::endl;
+        std::cout << colorText("╔════════════════════════════╗", GREEN) << std::endl;
+        std::cout << colorText("║         購票完成           ║", GREEN) << std::endl;
+        std::cout << colorText("╚════════════════════════════╝", GREEN) << std::endl;
+        displayTicket(*ticket);
     }
     pause();
 }
 
 void UIManager::refundTicket() {
-    std::cout << std::endl;
-    std::cout << "========== 退票 ==========" << std::endl;
+    printPageTitle("[退票] 依票號退票");
     const std::string ticketId = readRequiredLine("請輸入票號：");
     const Ticket* ticket = cinemaSystem.findTicketById(ticketId);
     if (ticket == nullptr) {
-        std::cout << "[錯誤] 找不到票券" << std::endl;
+        printError("找不到票券");
         pause();
         return;
     }
 
-    std::cout << "--------------------------------------------------------------------------------" << std::endl;
-    std::cout << "票號 | 電影名稱 | 場次 ID | 座位 | 票種 | 票價" << std::endl;
-    std::cout << "--------------------------------------------------------------------------------" << std::endl;
     displayTicket(*ticket);
-    std::cout << "--------------------------------------------------------------------------------" << std::endl;
-
     if (!askYesNo("是否確認退票")) {
-        std::cout << "[提示] 已取消退票" << std::endl;
+        printInfo("已取消退票");
         pause();
         return;
     }
 
     std::string message;
     if (cinemaSystem.refundTicket(ticketId, message)) {
-        std::cout << "[成功] 退票完成" << std::endl;
+        printSuccess("退票完成，座位已釋放。");
     } else {
-        std::cout << "[錯誤] " << message << std::endl;
+        printError(message);
     }
     pause();
 }
 
 void UIManager::queryTickets() {
     while (true) {
-        std::cout << std::endl;
-        std::cout << "========== 查詢票券 ==========" << std::endl;
-        std::cout << "1. 依票號查詢" << std::endl;
-        std::cout << "2. 顯示所有已售出票券" << std::endl;
-        std::cout << "0. 返回主選單" << std::endl;
+        printSubMenu("查詢票券", {
+            "1. 依票號查詢",
+            "2. 顯示所有已售出票券",
+            "0. 返回主選單"
+        });
         const int choice = readMenuChoice(0, 2);
 
         if (choice == 0) {
             return;
         }
         if (choice == 1) {
+            printPageTitle("[查詢票券] 依票號查詢");
             const std::string ticketId = readRequiredLine("請輸入票號：");
             const Ticket* ticket = cinemaSystem.findTicketById(ticketId);
             if (ticket == nullptr) {
-                std::cout << "[錯誤] 找不到票券" << std::endl;
+                printError("找不到票券");
             } else {
-                std::cout << "--------------------------------------------------------------------------------" << std::endl;
-                std::cout << "票號 | 電影名稱 | 場次 ID | 座位 | 票種 | 票價" << std::endl;
-                std::cout << "--------------------------------------------------------------------------------" << std::endl;
                 displayTicket(*ticket);
-                std::cout << "--------------------------------------------------------------------------------" << std::endl;
             }
             pause();
         } else if (choice == 2) {
+            printPageTitle("[查詢票券] 所有已售出票券");
             displayTicketTable();
             pause();
         }
@@ -509,11 +578,10 @@ void UIManager::queryTickets() {
 }
 
 void UIManager::showSeatMap() {
-    std::cout << std::endl;
-    std::cout << "========== 查看座位表 ==========" << std::endl;
+    printPageTitle("[座位表] 選擇場次");
     const auto& showtimes = cinemaSystem.getShowtimes();
     if (showtimes.empty()) {
-        std::cout << "[提示] 目前沒有場次資料" << std::endl;
+        printInfo("目前沒有場次資料");
         pause();
         return;
     }
@@ -522,49 +590,45 @@ void UIManager::showSeatMap() {
     const std::string showtimeId = readRequiredLine("請輸入場次 ID：");
     const Showtime* showtime = cinemaSystem.findShowtimeById(showtimeId);
     if (showtime == nullptr) {
-        std::cout << "[錯誤] 場次 ID 不存在" << std::endl;
+        printError("找不到指定 ID。");
         pause();
         return;
     }
 
-    showtime->displaySeatMap();
+    displaySeatMap(*showtime);
     pause();
 }
 
 void UIManager::showTotalRevenue() {
-    std::cout << std::endl;
-    std::cout << "========== 查看總營收 ==========" << std::endl;
+    printPageTitle("[營收統計] 查看總營收");
     std::cout << "目前總營收：NT$" << cinemaSystem.calculateTotalRevenue() << std::endl;
     pause();
 }
 
 void UIManager::showMovieTicketCounts() {
-    std::cout << std::endl;
-    std::cout << "========== 各電影售票數量 ==========" << std::endl;
+    printPageTitle("[營收統計] 各電影售票數量");
     const std::map<std::string, int> counts = cinemaSystem.countTicketsByMovie();
     if (counts.empty()) {
-        std::cout << "[提示] 目前尚無售票資料" << std::endl;
+        printInfo("目前尚無售票資料");
         pause();
         return;
     }
 
-    std::cout << "----------------------------------------" << std::endl;
-    std::cout << "電影名稱 | 售票張數" << std::endl;
-    std::cout << "----------------------------------------" << std::endl;
+    printDivider();
     for (const auto& entry : counts) {
-        std::cout << entry.first << " | " << entry.second << " 張" << std::endl;
+        std::cout << "電影：" << entry.first << std::endl;
+        std::cout << "售票張數：" << entry.second << " 張" << std::endl;
+        printDivider();
     }
-    std::cout << "----------------------------------------" << std::endl;
     pause();
 }
 
 void UIManager::showTicketTypeCounts() {
-    std::cout << std::endl;
-    std::cout << "========== 各票種銷售數量 ==========" << std::endl;
+    printPageTitle("[營收統計] 各票種銷售數量");
     const std::map<std::string, int> counts = cinemaSystem.countTicketsByType();
     const std::map<std::string, int> revenue = cinemaSystem.calculateRevenueByTicketType();
     if (counts.empty()) {
-        std::cout << "[提示] 目前尚無售票資料" << std::endl;
+        printInfo("目前尚無售票資料");
         pause();
         return;
     }
@@ -582,13 +646,13 @@ void UIManager::showTicketTypeCounts() {
 
 void UIManager::showMovieMenu() {
     while (true) {
-        std::cout << std::endl;
-        std::cout << "========== 電影管理 ==========" << std::endl;
-        std::cout << "1. 新增電影" << std::endl;
-        std::cout << "2. 顯示所有電影" << std::endl;
-        std::cout << "3. 查詢電影" << std::endl;
-        std::cout << "4. 刪除電影" << std::endl;
-        std::cout << "0. 返回主選單" << std::endl;
+        printSubMenu("電影管理", {
+            "1. 新增電影",
+            "2. 顯示所有電影",
+            "3. 查詢電影",
+            "4. 刪除電影",
+            "0. 返回主選單"
+        });
 
         const int choice = readMenuChoice(0, 4);
         switch (choice) {
@@ -612,12 +676,12 @@ void UIManager::showMovieMenu() {
 
 void UIManager::showShowtimeMenu() {
     while (true) {
-        std::cout << std::endl;
-        std::cout << "========== 場次管理 ==========" << std::endl;
-        std::cout << "1. 新增電影場次" << std::endl;
-        std::cout << "2. 顯示所有場次" << std::endl;
-        std::cout << "3. 查詢指定電影場次" << std::endl;
-        std::cout << "0. 返回主選單" << std::endl;
+        printSubMenu("場次管理", {
+            "1. 新增電影場次",
+            "2. 顯示所有場次",
+            "3. 查詢指定電影場次",
+            "0. 返回主選單"
+        });
 
         const int choice = readMenuChoice(0, 3);
         switch (choice) {
@@ -638,12 +702,12 @@ void UIManager::showShowtimeMenu() {
 
 void UIManager::showStatisticsMenu() {
     while (true) {
-        std::cout << std::endl;
-        std::cout << "========== 營收統計 ==========" << std::endl;
-        std::cout << "1. 查看總營收" << std::endl;
-        std::cout << "2. 查看各電影售票數量" << std::endl;
-        std::cout << "3. 查看各票種銷售數量" << std::endl;
-        std::cout << "0. 返回主選單" << std::endl;
+        printSubMenu("營收統計", {
+            "1. 查看總營收",
+            "2. 查看各電影售票數量",
+            "3. 查看各票種銷售數量",
+            "0. 返回主選單"
+        });
 
         const int choice = readMenuChoice(0, 3);
         switch (choice) {
@@ -696,11 +760,11 @@ void UIManager::run() {
             case 8:
                 if (cinemaSystem.saveAllData()) {
                     std::cout << std::endl;
-                    std::cout << "[成功] 資料已儲存" << std::endl;
+                    printSuccess("資料已儲存");
                 } else {
                     std::cout << std::endl;
                     showWarnings(cinemaSystem.getSaveWarnings());
-                    std::cout << "[警告] 資料儲存未完全成功，請檢查 data/ 檔案狀態。" << std::endl;
+                    printWarning("資料儲存未完全成功，請檢查 data/ 檔案狀態。");
                 }
                 pause();
                 break;
@@ -708,13 +772,13 @@ void UIManager::run() {
                 std::cout << std::endl;
                 if (askYesNo("離開系統前是否儲存資料")) {
                     if (cinemaSystem.saveAllData()) {
-                        std::cout << "[成功] 資料已儲存" << std::endl;
+                        printSuccess("資料已儲存");
                     } else {
                         showWarnings(cinemaSystem.getSaveWarnings());
-                        std::cout << "[警告] 資料儲存未完全成功。" << std::endl;
+                        printWarning("資料儲存未完全成功。");
                     }
                 }
-                std::cout << "感謝使用電影院售票管理系統，再見！" << std::endl;
+                printInfo("感謝使用電影院售票管理系統，再見！");
                 running = false;
                 break;
         }

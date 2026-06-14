@@ -22,10 +22,21 @@ private:
     void showNotImplemented(const std::string& featureName) const;
     void showLoadWarningsIfAny() const;
     void showWarnings(const std::vector<std::string>& warnings) const;
+    std::string colorText(const std::string& text, const std::string& colorCode) const;
+    void printDivider() const;
+    void printPageTitle(const std::string& title) const;
+    void printBoxTitle(const std::string& title) const;
+    void printSuccess(const std::string& message) const;
+    void printError(const std::string& message) const;
+    void printWarning(const std::string& message) const;
+    void printInfo(const std::string& message) const;
+    void printMainMenu() const;
+    void printSubMenu(const std::string& title, const std::vector<std::string>& items) const;
     void displayMovieTable(const std::vector<Movie>& movies) const;
     void displayShowtimeTable(const std::vector<Showtime>& showtimes) const;
     void displayTicketTable() const;
     void displayTicket(const Ticket& ticket) const;
+    void displaySeatMap(const Showtime& showtime) const;
 
     void showMainMenu() const;
     void showMovieMenu();

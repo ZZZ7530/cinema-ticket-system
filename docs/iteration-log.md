@@ -116,3 +116,17 @@
 - 新增 `docs/usage-guide.md`，提供完整操作指南。
 - 新增 `screenshots/README.md`，說明展示截圖命名與放置位置。
 - 確認並更新 `docs/executable/cinema_ticket_system.exe`。
+
+## UI Polish：終端機 UI 美化
+
+完成日期：2026-06-14
+
+完成內容：
+
+- 使用 ANSI Escape Code 美化標題、選單編號、成功、錯誤、警告與提示訊息。
+- 主選單與子選單改為框線式排版。
+- 座位表改為框線標題，並以綠色 `O` 表示可選座位、紅色 `X` 表示已售出座位。
+- 電影、場次、票券資料改為較穩定的區塊式顯示，避免中文寬度造成表格歪斜。
+- 各功能頁面加入清楚標題，例如 `[電影管理] 新增電影`、`[購票流程] 選擇座位`。
+- 操作成功、錯誤與警告訊息集中透過 `UIManager` 輸出。
+- Windows 啟動時保留 UTF-8 code page 設定，並啟用 `ENABLE_VIRTUAL_TERMINAL_PROCESSING` 支援 ANSI 顏色。
