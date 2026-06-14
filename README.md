@@ -4,7 +4,7 @@
 
 本專案是 C++17 期末專題，目標是實作一套終端機版電影院售票管理系統。系統將支援電影管理、場次管理、購票、退票、票券查詢、座位表查詢與營收統計，並使用本地文字檔保存資料。
 
-目前進度：Iteration 2 核心類別與 OOP 繼承。
+目前進度：Iteration 3 終端機互動 UI 骨架。
 
 ## 系統功能規劃
 
@@ -81,6 +81,8 @@ docs/class-design.md
 - `User`
 - `Admin`
 - `Customer`
+- `CinemaSystem`
+- `UIManager`
 
 ## 檔案讀寫設計
 
@@ -116,6 +118,8 @@ T002|S001|鬼滅之刃劇場版|B2|學生票|280
 
 Windows 版本會設定 console input/output code page 為 UTF-8，讓中文輸出更穩定。
 
+Iteration 3 已完成互動式終端機 UI 骨架：主選單會重複顯示，使用者可輸入選項進入子選單，並以 `0` 返回或離開。現階段各功能會先顯示「尚未實作」提示，實際電影管理、場次管理、售票、退票、查詢與統計會在後續 Iteration 補上。
+
 ### 主選單
 
 ```text
@@ -134,6 +138,46 @@ Windows 版本會設定 console input/output code page 為 UTF-8，讓中文輸�
 ========================================
 請輸入選項：
 ```
+
+### 電影管理子選單
+
+```text
+========== 電影管理 ==========
+1. 新增電影
+2. 顯示所有電影
+3. 查詢電影
+4. 刪除電影
+0. 返回主選單
+請輸入選項：
+```
+
+### 場次管理子選單
+
+```text
+========== 場次管理 ==========
+1. 新增電影場次
+2. 顯示所有場次
+3. 查詢指定電影場次
+0. 返回主選單
+請輸入選項：
+```
+
+### 營收統計子選單
+
+```text
+========== 營收統計 ==========
+1. 查看總營收
+2. 查看各電影售票數量
+3. 查看各票種銷售數量
+0. 返回主選單
+請輸入選項：
+```
+
+輸入錯誤處理：
+
+- 輸入非數字時會提示 `[錯誤] 請輸入數字選項。`
+- 輸入不存在的選項時會提示 `[錯誤] 沒有這個選項，請重新輸入。`
+- 執行功能提示後，按 Enter 返回原選單。
 
 ### 座位表
 
@@ -163,16 +207,21 @@ cinema-ticket-system/
 │   ├── Movie.h
 │   ├── Showtime.h
 │   ├── Ticket.h
-│   └── User.h
+│   ├── User.h
+│   ├── CinemaSystem.h
+│   └── UIManager.h
 ├── src/
 │   ├── main.cpp
 │   ├── Movie.cpp
 │   ├── Showtime.cpp
 │   ├── Ticket.cpp
-│   └── User.cpp
+│   ├── User.cpp
+│   ├── CinemaSystem.cpp
+│   └── UIManager.cpp
 ├── data/
 ├── docs/
 │   ├── class-design.md
+│   ├── iteration-log.md
 │   └── executable/
 │       └── cinema_ticket_system.exe
 └── screenshots/
@@ -258,35 +307,43 @@ Copy-Item .\build\cinema_ticket_system.exe .\docs\executable\cinema_ticket_syste
 - 建立 `User`、`Admin`、`Customer`。
 - 在 `main.cpp` 中暫時加入物件建立、座位操作與多型測試。
 
-### Iteration 3：檔案讀寫
+### Iteration 3：終端機互動 UI 骨架
+
+- 建立 `CinemaSystem` 類別作為系統資料與功能整合入口。
+- 建立 `UIManager` 類別負責主選單、子選單、輸入驗證與暫停返回。
+- `main.cpp` 改為啟動互動式主選單。
+- 主選單與電影管理、場次管理、營收統計子選單可以重複操作。
+- 尚未完成的功能會顯示提示，並可按 Enter 返回。
+
+### Iteration 4：檔案讀寫
 
 - 完成 movies、showtimes、tickets 讀檔與寫檔。
 - 根據 ticketType 還原票券子類別。
 
-### Iteration 4：終端機 UI
+### Iteration 5：完整終端機 UI 與功能串接
 
 - 完成主選單與子選單。
 - 完成輸入驗證。
 - 完成表格、座位表與狀態提示。
 
-### Iteration 5：電影與場次管理
+### Iteration 6：電影與場次管理
 
 - 完成電影 CRUD。
 - 完成場次新增、顯示與查詢。
 
-### Iteration 6：售票與退票
+### Iteration 7：售票與退票
 
 - 完成售票流程。
 - 完成退票流程。
 - 完成座位狀態更新。
 
-### Iteration 7：查詢與統計
+### Iteration 8：查詢與統計
 
 - 完成票券查詢。
 - 完成座位狀態查詢。
 - 完成營收與銷售統計。
 
-### Iteration 8：文件與展示版本
+### Iteration 9：文件與展示版本
 
 - 完成 README。
 - 補充 docs 文件。

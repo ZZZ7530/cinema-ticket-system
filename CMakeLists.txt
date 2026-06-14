@@ -8,9 +8,11 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_executable(cinema_ticket_system
     src/main.cpp
+    src/CinemaSystem.cpp
     src/Movie.cpp
     src/Showtime.cpp
     src/Ticket.cpp
+    src/UIManager.cpp
     src/User.cpp
 )
 
