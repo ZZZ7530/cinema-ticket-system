@@ -4,7 +4,7 @@
 
 本專案是 C++17 期末專題，目標是實作一套終端機版電影院售票管理系統。系統將支援電影管理、場次管理、購票、退票、票券查詢、座位表查詢與營收統計，並使用本地文字檔保存資料。
 
-目前進度：Iteration 1 專案初始化。
+目前進度：Iteration 2 核心類別與 OOP 繼承。
 
 ## 系統功能規劃
 
@@ -20,13 +20,13 @@
 - C++17
 - CMake
 - STL：`vector`、`map`、`string`、`fstream`、`algorithm`
-- 物件導向設計：class、inheritance、polymorphism
+- OOP：class、inheritance、polymorphism
 - 本地文字檔讀寫
 - 終端機互動式 UI
 
 ## C++ 類別繼承設計
 
-票券將使用繼承與多型展示 C++ OOP 能力：
+票券使用繼承與多型展示 C++ OOP 能力：
 
 ```text
 Ticket
@@ -35,21 +35,52 @@ Ticket
 └── ChildTicket
 ```
 
-規劃使用 `vector<unique_ptr<Ticket>>` 儲存票券。讀取 `data/tickets.txt` 時，系統會根據 `ticketType` 欄位還原成對應的子類別物件：
+`Ticket` 是抽象基底類別，定義：
+
+- `virtual int calculatePrice() const = 0`
+- `virtual std::string getTicketType() const = 0`
+
+各票種票價：
+
+- 成人票：320
+- 學生票：280
+- 兒童票：220
+
+系統規劃使用 `vector<unique_ptr<Ticket>>` 儲存票券。讀取 `data/tickets.txt` 時，會根據 `ticketType` 還原成對應子類別：
 
 - `成人票` -> `AdultTicket`
 - `學生票` -> `StudentTicket`
 - `兒童票` -> `ChildTicket`
 
-各票種會覆寫 `calculatePrice()` 與 `getTicketType()`，以展示 virtual function 與 polymorphism。
-
-使用者角色也可使用繼承輔助展示：
+使用者角色也使用繼承：
 
 ```text
 User
 ├── Admin
 └── Customer
 ```
+
+`User` 定義 `virtual std::string getRole() const = 0`，由 `Admin` 與 `Customer` 覆寫。
+
+## 類別設計文件
+
+詳細類別設計請見：
+
+```text
+docs/class-design.md
+```
+
+目前已建立：
+
+- `Movie`
+- `Showtime`
+- `Ticket`
+- `AdultTicket`
+- `StudentTicket`
+- `ChildTicket`
+- `User`
+- `Admin`
+- `Customer`
 
 ## 檔案讀寫設計
 
@@ -83,7 +114,7 @@ T002|S001|鬼滅之刃劇場版|B2|學生票|280
 
 建議使用 Windows Terminal 或 VS Code Terminal 執行本系統，以獲得較好的中文字元與 ANSI 顏色顯示效果。程式可以使用 ANSI 顏色提示成功、錯誤、警告與標題，但操作流程不會依賴顏色，因此即使在不支援顏色的終端機中仍可使用。
 
-Windows 版本將盡量加入 ANSI 支援處理，讓 Windows Terminal / CMD 都能正常顯示基本顏色。
+Windows 版本會設定 console input/output code page 為 UTF-8，讓中文輸出更穩定。
 
 ### 主選單
 
@@ -110,17 +141,17 @@ Windows 版本將盡量加入 ANSI 支援處理，讓 Windows Terminal / CMD 都
 ========================================
 座位表
 ========================================
-        1   2   3   4   5   6
-A       O   O   X   O   O   O
-B       O   X   X   O   O   O
-C       O   O   O   O   X   O
+    1   2   3   4   5   6
+A   O   O   X   O   O   O
+B   O   X   X   O   O   O
+C   O   O   O   O   X   O
 
 O = 可選座位
 X = 已售出座位
 ========================================
 ```
 
-中文表格輸出會避免過度依賴 `setw` 對齊，因為不同終端機對中文寬度處理可能不同。系統會採用簡單分隔線、固定欄位標題、逐列顯示與清楚編號，確保教授操作時容易閱讀。
+中文表格輸出會避免過度依賴 `setw` 對齊，改用分隔線、固定欄位標題、逐列顯示與清楚編號。
 
 ## 專案目錄結構
 
@@ -129,10 +160,19 @@ cinema-ticket-system/
 ├── CMakeLists.txt
 ├── README.md
 ├── include/
+│   ├── Movie.h
+│   ├── Showtime.h
+│   ├── Ticket.h
+│   └── User.h
 ├── src/
-│   └── main.cpp
+│   ├── main.cpp
+│   ├── Movie.cpp
+│   ├── Showtime.cpp
+│   ├── Ticket.cpp
+│   └── User.cpp
 ├── data/
 ├── docs/
+│   ├── class-design.md
 │   └── executable/
 │       └── cinema_ticket_system.exe
 └── screenshots/
@@ -146,29 +186,13 @@ cinema-ticket-system/
 docs/executable/cinema_ticket_system.exe
 ```
 
-`release/` 不是主要交付位置，可不建立；若之後需要，也只作為備份或額外發佈說明使用。
-
 ## 安裝與編譯方式
-
-### 方法一：使用 CMake 自行編譯
 
 在專案根目錄執行：
 
 ```powershell
-cmake -S . -B build
-cmake --build build --config Release
-```
-
-若使用 Visual Studio generator，執行檔通常會產生在：
-
-```text
-build/Release/cinema_ticket_system.exe
-```
-
-若使用 Makefiles 或 Ninja，執行檔可能會產生在：
-
-```text
-build/cinema_ticket_system.exe
+cmake -S . -B build -G Ninja
+cmake --build build
 ```
 
 ## 執行方式
@@ -184,12 +208,6 @@ chcp 65001
 ### 方法一：執行 CMake 編譯結果
 
 ```powershell
-.\build\Release\cinema_ticket_system.exe
-```
-
-或：
-
-```powershell
 .\build\cinema_ticket_system.exe
 ```
 
@@ -200,14 +218,6 @@ chcp 65001
 ```
 
 ## 複製執行檔到 docs/executable
-
-Visual Studio generator 常見指令：
-
-```powershell
-Copy-Item .\build\Release\cinema_ticket_system.exe .\docs\executable\cinema_ticket_system.exe -Force
-```
-
-Ninja 或 Makefiles 常見指令：
 
 ```powershell
 Copy-Item .\build\cinema_ticket_system.exe .\docs\executable\cinema_ticket_system.exe -Force
@@ -229,29 +239,6 @@ Copy-Item .\build\cinema_ticket_system.exe .\docs\executable\cinema_ticket_syste
 - `feature/documentation`：完成 README 與 docs 文件。
 - `release/v1.0`：最後可展示版本。
 
-Iteration 1 建議 commit：
-
-```powershell
-git init
-git checkout -b main
-git add .
-git commit -m "chore: initialize cinema ticket system project"
-git checkout -b develop
-git checkout -b feature/project-setup
-git commit --allow-empty -m "chore: start project setup iteration"
-```
-
-若已經先在 `feature/project-setup` 建立檔案，則可以改用：
-
-```powershell
-git init
-git checkout -b main
-git checkout -b develop
-git checkout -b feature/project-setup
-git add .
-git commit -m "chore: create cmake project structure"
-```
-
 ## 開發迭代紀錄
 
 ### Iteration 1：專案初始化
@@ -260,12 +247,16 @@ git commit -m "chore: create cmake project structure"
 - 建立基本目錄結構。
 - 建立 README 初版。
 - 建立最小可執行 `src/main.cpp`。
+- 修正 Windows 終端機中文 UTF-8 顯示。
 
 ### Iteration 2：核心類別與 OOP
 
-- 建立 Movie、Showtime、Seat。
-- 建立 Ticket / AdultTicket / StudentTicket / ChildTicket。
-- 建立 User / Admin / Customer。
+- 建立 `Movie` 類別。
+- 建立 `Showtime` 類別與座位狀態方法。
+- 建立 `Ticket` 抽象基底類別。
+- 建立 `AdultTicket`、`StudentTicket`、`ChildTicket`。
+- 建立 `User`、`Admin`、`Customer`。
+- 在 `main.cpp` 中暫時加入物件建立、座位操作與多型測試。
 
 ### Iteration 3：檔案讀寫
 
