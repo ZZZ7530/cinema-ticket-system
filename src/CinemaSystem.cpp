@@ -264,6 +264,46 @@ const Ticket* CinemaSystem::findTicketById(const std::string& ticketId) const {
     return it == tickets.end() ? nullptr : it->get();
 }
 
+int CinemaSystem::calculateTotalRevenue() const {
+    int total = 0;
+    for (const auto& ticket : tickets) {
+        if (ticket) {
+            total += ticket->calculatePrice();
+        }
+    }
+    return total;
+}
+
+std::map<std::string, int> CinemaSystem::countTicketsByMovie() const {
+    std::map<std::string, int> counts;
+    for (const auto& ticket : tickets) {
+        if (ticket) {
+            counts[ticket->getMovieTitle()]++;
+        }
+    }
+    return counts;
+}
+
+std::map<std::string, int> CinemaSystem::countTicketsByType() const {
+    std::map<std::string, int> counts;
+    for (const auto& ticket : tickets) {
+        if (ticket) {
+            counts[ticket->getTicketType()]++;
+        }
+    }
+    return counts;
+}
+
+std::map<std::string, int> CinemaSystem::calculateRevenueByTicketType() const {
+    std::map<std::string, int> revenue;
+    for (const auto& ticket : tickets) {
+        if (ticket) {
+            revenue[ticket->getTicketType()] += ticket->calculatePrice();
+        }
+    }
+    return revenue;
+}
+
 int CinemaSystem::getMovieCount() const {
     return static_cast<int>(movies.size());
 }

@@ -43,6 +43,9 @@ private:
     void refundTicket();
     void queryTickets();
     void showSeatMap();
+    void showTotalRevenue();
+    void showMovieTicketCounts();
+    void showTicketTypeCounts();
 
 public:
     explicit UIManager(CinemaSystem& cinemaSystem);

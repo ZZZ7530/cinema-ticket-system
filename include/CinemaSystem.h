@@ -5,6 +5,7 @@
 #include "Showtime.h"
 #include "Ticket.h"
 
+#include <map>
 #include <memory>
 #include <string>
 #include <vector>
@@ -56,6 +57,10 @@ public:
                            std::string& message);
     bool refundTicket(const std::string& ticketId, std::string& message);
     const Ticket* findTicketById(const std::string& ticketId) const;
+    int calculateTotalRevenue() const;
+    std::map<std::string, int> countTicketsByMovie() const;
+    std::map<std::string, int> countTicketsByType() const;
+    std::map<std::string, int> calculateRevenueByTicketType() const;
 
     int getMovieCount() const;
     int getShowtimeCount() const;

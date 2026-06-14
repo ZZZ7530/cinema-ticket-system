@@ -6,6 +6,7 @@
 #include <cctype>
 #include <iostream>
 #include <limits>
+#include <map>
 #include <string>
 #include <vector>
 
@@ -530,6 +531,55 @@ void UIManager::showSeatMap() {
     pause();
 }
 
+void UIManager::showTotalRevenue() {
+    std::cout << std::endl;
+    std::cout << "========== 查看總營收 ==========" << std::endl;
+    std::cout << "目前總營收：NT$" << cinemaSystem.calculateTotalRevenue() << std::endl;
+    pause();
+}
+
+void UIManager::showMovieTicketCounts() {
+    std::cout << std::endl;
+    std::cout << "========== 各電影售票數量 ==========" << std::endl;
+    const std::map<std::string, int> counts = cinemaSystem.countTicketsByMovie();
+    if (counts.empty()) {
+        std::cout << "[提示] 目前尚無售票資料" << std::endl;
+        pause();
+        return;
+    }
+
+    std::cout << "----------------------------------------" << std::endl;
+    std::cout << "電影名稱 | 售票張數" << std::endl;
+    std::cout << "----------------------------------------" << std::endl;
+    for (const auto& entry : counts) {
+        std::cout << entry.first << " | " << entry.second << " 張" << std::endl;
+    }
+    std::cout << "----------------------------------------" << std::endl;
+    pause();
+}
+
+void UIManager::showTicketTypeCounts() {
+    std::cout << std::endl;
+    std::cout << "========== 各票種銷售數量 ==========" << std::endl;
+    const std::map<std::string, int> counts = cinemaSystem.countTicketsByType();
+    const std::map<std::string, int> revenue = cinemaSystem.calculateRevenueByTicketType();
+    if (counts.empty()) {
+        std::cout << "[提示] 目前尚無售票資料" << std::endl;
+        pause();
+        return;
+    }
+
+    const std::vector<std::string> ticketTypes = {"成人票", "學生票", "兒童票"};
+    for (const auto& ticketType : ticketTypes) {
+        const auto countIt = counts.find(ticketType);
+        const auto revenueIt = revenue.find(ticketType);
+        const int count = countIt == counts.end() ? 0 : countIt->second;
+        const int subtotal = revenueIt == revenue.end() ? 0 : revenueIt->second;
+        std::cout << ticketType << "：" << count << " 張，小計 NT$" << subtotal << std::endl;
+    }
+    pause();
+}
+
 void UIManager::showMovieMenu() {
     while (true) {
         std::cout << std::endl;
@@ -598,13 +648,13 @@ void UIManager::showStatisticsMenu() {
         const int choice = readMenuChoice(0, 3);
         switch (choice) {
             case 1:
-                showNotImplemented("查看總營收");
+                showTotalRevenue();
                 break;
             case 2:
-                showNotImplemented("查看各電影售票數量");
+                showMovieTicketCounts();
                 break;
             case 3:
-                showNotImplemented("查看各票種銷售數量");
+                showTicketTypeCounts();
                 break;
             case 0:
                 return;
