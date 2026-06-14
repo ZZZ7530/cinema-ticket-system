@@ -17,6 +17,9 @@ private:
     std::vector<std::string> loadWarnings;
     std::vector<std::string> saveWarnings;
 
+    std::string generateNextMovieId() const;
+    std::string generateNextShowtimeId() const;
+
 public:
     CinemaSystem();
 
@@ -28,6 +31,21 @@ public:
     const std::vector<std::unique_ptr<Ticket>>& getTickets() const;
     const std::vector<std::string>& getLoadWarnings() const;
     const std::vector<std::string>& getSaveWarnings() const;
+
+    Movie addMovie(const std::string& title, const std::string& genre, int duration);
+    std::vector<Movie> searchMovies(const std::string& keyword) const;
+    const Movie* findMovieById(const std::string& movieId) const;
+    bool deleteMovie(const std::string& movieId, std::string& message);
+    bool hasShowtimesForMovie(const std::string& movieId) const;
+
+    Showtime addShowtime(const std::string& movieId,
+                         const std::string& date,
+                         const std::string& time,
+                         const std::string& hall,
+                         int rows,
+                         int cols);
+    std::vector<Showtime> searchShowtimesByMovie(const std::string& keyword) const;
+    std::string getMovieTitleById(const std::string& movieId) const;
 
     int getMovieCount() const;
     int getShowtimeCount() const;
