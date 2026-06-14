@@ -39,3 +39,20 @@
 - 完成電影管理、場次管理、營收統計子選單骨架。
 - 尚未實作的功能會顯示提示，並等待使用者按 Enter 返回。
 - 處理非數字輸入與不存在的選項，避免程式崩潰。
+
+## Iteration 4：檔案讀寫功能
+
+完成日期：2026-06-14
+
+完成內容：
+
+- 建立 `FileManager` 類別，集中處理 `data/` 內文字檔讀寫。
+- 完成 `data/movies.txt` 讀取與寫入，格式為 `movieId|title|genre|duration`。
+- 完成 `data/showtimes.txt` 讀取與寫入，格式為 `showtimeId|movieId|date|time|hall|rows|cols|soldSeats`。
+- 完成 `data/tickets.txt` 讀取與寫入，格式為 `ticketId|showtimeId|movieTitle|seatNo|ticketType|price`。
+- 讀取票券時會依 `ticketType` 還原為 `AdultTicket`、`StudentTicket` 或 `ChildTicket`，並使用 `vector<unique_ptr<Ticket>>` 儲存。
+- 若資料檔不存在，系統會自動建立檔案。
+- 若資料檔是空檔，系統會自動填入預設範例資料，方便展示。
+- `CinemaSystem` 啟動時會載入三個資料檔，儲存時會寫回三個資料檔。
+- `UIManager` 會顯示載入資料筆數、讀取警告、儲存成功訊息，並在離開前詢問是否儲存。
+- 建立 `docs/file-format.md` 說明資料格式。

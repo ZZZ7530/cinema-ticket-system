@@ -5,6 +5,7 @@
 #include <iostream>
 #include <limits>
 #include <string>
+#include <vector>
 
 UIManager::UIManager(CinemaSystem& cinemaSystem) : cinemaSystem(cinemaSystem) {}
 
@@ -27,6 +28,23 @@ int UIManager::readMenuChoice(int minChoice, int maxChoice) {
     }
 }
 
+bool UIManager::askYesNo(const std::string& question) {
+    while (true) {
+        std::cout << question << " (y/n)：";
+        std::string answer;
+        std::getline(std::cin, answer);
+
+        if (answer == "y" || answer == "Y") {
+            return true;
+        }
+        if (answer == "n" || answer == "N") {
+            return false;
+        }
+
+        std::cout << "[錯誤] 請輸入 y 或 n。" << std::endl;
+    }
+}
+
 void UIManager::pause() const {
     std::cout << std::endl;
     std::cout << "按 Enter 返回...";
@@ -37,6 +55,23 @@ void UIManager::showNotImplemented(const std::string& featureName) const {
     std::cout << std::endl;
     std::cout << "[提示] " << featureName << " 功能尚未實作，將於後續 Iteration 完成。" << std::endl;
     pause();
+}
+
+void UIManager::showLoadedDataSummary() const {
+    std::cout << std::endl;
+    std::cout << "========================================" << std::endl;
+    std::cout << "資料載入完成" << std::endl;
+    std::cout << "========================================" << std::endl;
+    std::cout << "電影資料：" << cinemaSystem.getMovieCount() << " 筆" << std::endl;
+    std::cout << "場次資料：" << cinemaSystem.getShowtimeCount() << " 筆" << std::endl;
+    std::cout << "票券資料：" << cinemaSystem.getTicketCount() << " 筆" << std::endl;
+    showWarnings(cinemaSystem.getLoadWarnings());
+}
+
+void UIManager::showWarnings(const std::vector<std::string>& warnings) const {
+    for (const auto& warning : warnings) {
+        std::cout << "[警告] " << warning << std::endl;
+    }
 }
 
 void UIManager::showMainMenu() const {
@@ -139,8 +174,11 @@ void UIManager::showStatisticsMenu() {
 }
 
 void UIManager::run() {
-    bool running = true;
+    cinemaSystem.loadAllData();
+    showLoadedDataSummary();
+    pause();
 
+    bool running = true;
     while (running) {
         showMainMenu();
         const int choice = readMenuChoice(0, 8);
@@ -168,10 +206,26 @@ void UIManager::run() {
                 showStatisticsMenu();
                 break;
             case 8:
-                showNotImplemented("儲存資料");
+                if (cinemaSystem.saveAllData()) {
+                    std::cout << std::endl;
+                    std::cout << "[成功] 資料已儲存" << std::endl;
+                } else {
+                    std::cout << std::endl;
+                    showWarnings(cinemaSystem.getSaveWarnings());
+                    std::cout << "[警告] 資料儲存未完全成功，請檢查 data/ 檔案狀態。" << std::endl;
+                }
+                pause();
                 break;
             case 0:
                 std::cout << std::endl;
+                if (askYesNo("離開系統前是否儲存資料")) {
+                    if (cinemaSystem.saveAllData()) {
+                        std::cout << "[成功] 資料已儲存" << std::endl;
+                    } else {
+                        showWarnings(cinemaSystem.getSaveWarnings());
+                        std::cout << "[警告] 資料儲存未完全成功。" << std::endl;
+                    }
+                }
                 std::cout << "感謝使用電影院售票管理系統，再見！" << std::endl;
                 running = false;
                 break;

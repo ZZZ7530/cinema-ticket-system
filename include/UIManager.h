@@ -2,6 +2,7 @@
 #define UI_MANAGER_H
 
 #include <string>
+#include <vector>
 
 class CinemaSystem;
 
@@ -10,8 +11,11 @@ private:
     CinemaSystem& cinemaSystem;
 
     int readMenuChoice(int minChoice, int maxChoice);
+    bool askYesNo(const std::string& question);
     void pause() const;
     void showNotImplemented(const std::string& featureName) const;
+    void showLoadedDataSummary() const;
+    void showWarnings(const std::vector<std::string>& warnings) const;
 
     void showMainMenu() const;
     void showMovieMenu();

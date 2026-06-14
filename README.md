@@ -4,7 +4,7 @@
 
 本專案是 C++17 期末專題，目標是實作一套終端機版電影院售票管理系統。系統將支援電影管理、場次管理、購票、退票、票券查詢、座位表查詢與營收統計，並使用本地文字檔保存資料。
 
-目前進度：Iteration 3 終端機互動 UI 骨架。
+目前進度：Iteration 4 檔案讀寫功能。
 
 ## 系統功能規劃
 
@@ -83,10 +83,27 @@ docs/class-design.md
 - `Customer`
 - `CinemaSystem`
 - `UIManager`
+- `FileManager`
 
 ## 檔案讀寫設計
 
 資料檔會放在 `data/` 目錄，使用 `|` 分隔欄位。
+
+Iteration 4 已完成檔案讀寫功能：
+
+- 程式啟動時自動讀取 `data/movies.txt`、`data/showtimes.txt`、`data/tickets.txt`。
+- 若檔案不存在，會自動建立檔案。
+- 若資料檔是空檔，會自動填入預設範例資料，方便展示。
+- 若資料列格式錯誤，會顯示 `[警告]` 並略過錯誤資料，程式不會崩潰。
+- 主選單 `8. 儲存資料` 會將目前資料寫回三個檔案。
+- 離開系統前會詢問是否儲存資料。
+- 票券讀檔會依 `ticketType` 還原成 `AdultTicket`、`StudentTicket` 或 `ChildTicket`，並以 `vector<unique_ptr<Ticket>>` 保存。
+
+完整格式說明請見：
+
+```text
+docs/file-format.md
+```
 
 ### data/movies.txt
 
@@ -138,6 +155,14 @@ Iteration 3 已完成互動式終端機 UI 骨架：主選單會重複顯示，�
 ========================================
 請輸入選項：
 ```
+
+選擇 `8. 儲存資料` 時，系統會呼叫 `saveAllData()`，並顯示：
+
+```text
+[成功] 資料已儲存
+```
+
+若寫入失敗，系統會顯示 `[警告]`，但不會直接崩潰。
 
 ### 電影管理子選單
 
@@ -209,7 +234,8 @@ cinema-ticket-system/
 │   ├── Ticket.h
 │   ├── User.h
 │   ├── CinemaSystem.h
-│   └── UIManager.h
+│   ├── UIManager.h
+│   └── FileManager.h
 ├── src/
 │   ├── main.cpp
 │   ├── Movie.cpp
@@ -217,11 +243,16 @@ cinema-ticket-system/
 │   ├── Ticket.cpp
 │   ├── User.cpp
 │   ├── CinemaSystem.cpp
-│   └── UIManager.cpp
+│   ├── UIManager.cpp
+│   └── FileManager.cpp
 ├── data/
+│   ├── movies.txt
+│   ├── showtimes.txt
+│   └── tickets.txt
 ├── docs/
 │   ├── class-design.md
 │   ├── iteration-log.md
+│   ├── file-format.md
 │   └── executable/
 │       └── cinema_ticket_system.exe
 └── screenshots/
@@ -319,6 +350,10 @@ Copy-Item .\build\cinema_ticket_system.exe .\docs\executable\cinema_ticket_syste
 
 - 完成 movies、showtimes、tickets 讀檔與寫檔。
 - 根據 ticketType 還原票券子類別。
+- 建立 `FileManager` 集中處理本地文字檔。
+- 主選單 `8. 儲存資料` 可寫回 data 檔案。
+- 離開系統前詢問是否儲存資料。
+- 新增 `docs/file-format.md`。
 
 ### Iteration 5：完整終端機 UI 與功能串接
 

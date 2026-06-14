@@ -1,0 +1,4 @@
+showtimeId|movieId|date|time|hall|rows|cols|soldSeats
+S001|M001|2026-01-10|14:00|A廳|5|6|A3,B2,C5
+S002|M002|2026-01-10|16:30|B廳|5|6|A1,A2
+S003|M003|2026-01-11|19:00|C廳|6|8|
