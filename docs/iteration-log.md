@@ -1,5 +1,7 @@
 # 開發迭代紀錄
 
+本文件記錄本專案各 feature 分支與 Iteration 完成內容，用於呈現 GitHub 開發流程。
+
 ## Iteration 1：專案初始化
 
 完成日期：2026-06-14
@@ -102,3 +104,15 @@
 - 使用 `map<string, int>` 統計成人票、學生票、兒童票銷售數量。
 - 使用 `map<string, int>` 統計各票種小計金額。
 - 若目前沒有票券資料，電影售票統計與票種統計會顯示 `[提示] 目前尚無售票資料`。
+
+## Iteration 8：文件、截圖說明與最終發佈整理
+
+完成日期：2026-06-14
+
+完成內容：
+
+- 整理 README.md，使 GitHub 首頁能完整呈現專案介紹、功能、技術、編譯、執行與開發流程。
+- 整理 `docs/class-design.md`、`docs/file-format.md`、`docs/iteration-log.md`。
+- 新增 `docs/usage-guide.md`，提供完整操作指南。
+- 新增 `screenshots/README.md`，說明展示截圖命名與放置位置。
+- 確認並更新 `docs/executable/cinema_ticket_system.exe`。

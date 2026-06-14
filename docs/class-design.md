@@ -1,5 +1,7 @@
 # 類別設計文件
 
+本文件說明電影院售票管理系統的主要類別、職責與繼承設計。完整操作方式請見 `docs/usage-guide.md`，資料格式請見 `docs/file-format.md`。
+
 ## Movie
 
 `Movie` 負責保存電影基本資料。
