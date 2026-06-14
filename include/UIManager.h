@@ -14,7 +14,7 @@ private:
     bool askYesNo(const std::string& question);
     void pause() const;
     void showNotImplemented(const std::string& featureName) const;
-    void showLoadedDataSummary() const;
+    void showLoadWarningsIfAny() const;
     void showWarnings(const std::vector<std::string>& warnings) const;
 
     void showMainMenu() const;

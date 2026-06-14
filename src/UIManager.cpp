@@ -57,15 +57,12 @@ void UIManager::showNotImplemented(const std::string& featureName) const {
     pause();
 }
 
-void UIManager::showLoadedDataSummary() const {
-    std::cout << std::endl;
-    std::cout << "========================================" << std::endl;
-    std::cout << "資料載入完成" << std::endl;
-    std::cout << "========================================" << std::endl;
-    std::cout << "電影資料：" << cinemaSystem.getMovieCount() << " 筆" << std::endl;
-    std::cout << "場次資料：" << cinemaSystem.getShowtimeCount() << " 筆" << std::endl;
-    std::cout << "票券資料：" << cinemaSystem.getTicketCount() << " 筆" << std::endl;
-    showWarnings(cinemaSystem.getLoadWarnings());
+void UIManager::showLoadWarningsIfAny() const {
+    if (!cinemaSystem.getLoadWarnings().empty()) {
+        std::cout << std::endl;
+        std::cout << "[警告] 載入資料時發現以下問題：" << std::endl;
+        showWarnings(cinemaSystem.getLoadWarnings());
+    }
 }
 
 void UIManager::showWarnings(const std::vector<std::string>& warnings) const {
@@ -79,6 +76,10 @@ void UIManager::showMainMenu() const {
     std::cout << "========================================" << std::endl;
     std::cout << "        電影院售票管理系統" << std::endl;
     std::cout << "========================================" << std::endl;
+    std::cout << "資料狀態：電影 " << cinemaSystem.getMovieCount()
+              << " 筆｜場次 " << cinemaSystem.getShowtimeCount()
+              << " 筆｜票券 " << cinemaSystem.getTicketCount() << " 筆" << std::endl;
+    std::cout << "----------------------------------------" << std::endl;
     std::cout << "1. 電影管理" << std::endl;
     std::cout << "2. 場次管理" << std::endl;
     std::cout << "3. 購買電影票" << std::endl;
@@ -175,8 +176,7 @@ void UIManager::showStatisticsMenu() {
 
 void UIManager::run() {
     cinemaSystem.loadAllData();
-    showLoadedDataSummary();
-    pause();
+    showLoadWarningsIfAny();
 
     bool running = true;
     while (running) {
