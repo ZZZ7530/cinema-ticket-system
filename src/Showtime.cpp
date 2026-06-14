@@ -105,6 +105,10 @@ bool Showtime::isSeatInRange(const std::string& seatNo) const {
     }
 }
 
+bool Showtime::isSeatValid(const std::string& seatNo) const {
+    return isSeatInRange(seatNo);
+}
+
 bool Showtime::isSeatSold(const std::string& seatNo) const {
     return std::find(soldSeats.begin(), soldSeats.end(), seatNo) != soldSeats.end();
 }

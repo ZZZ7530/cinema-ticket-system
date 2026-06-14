@@ -7,6 +7,7 @@
 #include <exception>
 #include <iomanip>
 #include <sstream>
+#include <utility>
 
 CinemaSystem::CinemaSystem() = default;
 
@@ -55,6 +56,16 @@ std::string CinemaSystem::generateNextShowtimeId() const {
         maxNumber = std::max(maxNumber, extractIdNumber(showtime.getShowtimeId(), 'S'));
     }
     return makeId('S', maxNumber + 1);
+}
+
+std::string CinemaSystem::generateNextTicketId() const {
+    int maxNumber = 0;
+    for (const auto& ticket : tickets) {
+        if (ticket) {
+            maxNumber = std::max(maxNumber, extractIdNumber(ticket->getTicketId(), 'T'));
+        }
+    }
+    return makeId('T', maxNumber + 1);
 }
 
 void CinemaSystem::loadAllData() {
@@ -170,6 +181,87 @@ std::vector<Showtime> CinemaSystem::searchShowtimesByMovie(const std::string& ke
 std::string CinemaSystem::getMovieTitleById(const std::string& movieId) const {
     const Movie* movie = findMovieById(movieId);
     return movie == nullptr ? "(未知電影)" : movie->getTitle();
+}
+
+const Showtime* CinemaSystem::findShowtimeById(const std::string& showtimeId) const {
+    const auto it = std::find_if(showtimes.begin(), showtimes.end(), [&showtimeId](const Showtime& showtime) {
+        return showtime.getShowtimeId() == showtimeId;
+    });
+    return it == showtimes.end() ? nullptr : &(*it);
+}
+
+Showtime* CinemaSystem::findShowtimeById(const std::string& showtimeId) {
+    const auto it = std::find_if(showtimes.begin(), showtimes.end(), [&showtimeId](const Showtime& showtime) {
+        return showtime.getShowtimeId() == showtimeId;
+    });
+    return it == showtimes.end() ? nullptr : &(*it);
+}
+
+Ticket* CinemaSystem::purchaseTicket(const std::string& showtimeId,
+                                     const std::string& seatNo,
+                                     const std::string& ticketType,
+                                     std::string& message) {
+    Showtime* showtime = findShowtimeById(showtimeId);
+    if (showtime == nullptr) {
+        message = "場次 ID 不存在";
+        return nullptr;
+    }
+
+    if (!showtime->isSeatValid(seatNo)) {
+        message = "座位格式錯誤或超出範圍";
+        return nullptr;
+    }
+
+    if (showtime->isSeatSold(seatNo)) {
+        message = "座位已售出";
+        return nullptr;
+    }
+
+    const std::string movieTitle = getMovieTitleById(showtime->getMovieId());
+    std::unique_ptr<Ticket> ticket;
+    try {
+        ticket = createTicketByType(generateNextTicketId(), showtimeId, movieTitle, seatNo, ticketType);
+    } catch (const std::exception& ex) {
+        message = ex.what();
+        return nullptr;
+    }
+
+    if (!showtime->sellSeat(seatNo)) {
+        message = "座位狀態更新失敗";
+        return nullptr;
+    }
+
+    Ticket* createdTicket = ticket.get();
+    tickets.push_back(std::move(ticket));
+    message = "購票完成";
+    return createdTicket;
+}
+
+bool CinemaSystem::refundTicket(const std::string& ticketId, std::string& message) {
+    const auto it = std::find_if(tickets.begin(), tickets.end(), [&ticketId](const std::unique_ptr<Ticket>& ticket) {
+        return ticket && ticket->getTicketId() == ticketId;
+    });
+
+    if (it == tickets.end()) {
+        message = "找不到票券";
+        return false;
+    }
+
+    Showtime* showtime = findShowtimeById((*it)->getShowtimeId());
+    if (showtime != nullptr) {
+        showtime->releaseSeat((*it)->getSeatNo());
+    }
+
+    tickets.erase(it);
+    message = "退票完成";
+    return true;
+}
+
+const Ticket* CinemaSystem::findTicketById(const std::string& ticketId) const {
+    const auto it = std::find_if(tickets.begin(), tickets.end(), [&ticketId](const std::unique_ptr<Ticket>& ticket) {
+        return ticket && ticket->getTicketId() == ticketId;
+    });
+    return it == tickets.end() ? nullptr : it->get();
 }
 
 int CinemaSystem::getMovieCount() const {

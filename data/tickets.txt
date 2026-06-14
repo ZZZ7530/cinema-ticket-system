@@ -1,4 +1,4 @@
 ticketId|showtimeId|movieTitle|seatNo|ticketType|price
 T001|S001|鬼滅之刃劇場版|A3|成人票|320
 T002|S001|鬼滅之刃劇場版|B2|學生票|280
-T003|S002|名偵探柯南劇場版|A1|兒童票|220
+T004|S004|測試電影|A1|學生票|280

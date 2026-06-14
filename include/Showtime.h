@@ -37,6 +37,7 @@ public:
     int getCols() const;
     std::vector<std::string> getSoldSeats() const;
 
+    bool isSeatValid(const std::string& seatNo) const;
     bool isSeatSold(const std::string& seatNo) const;
     bool sellSeat(const std::string& seatNo);
     bool releaseSeat(const std::string& seatNo);

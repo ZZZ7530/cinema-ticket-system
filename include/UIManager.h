@@ -3,6 +3,7 @@
 
 #include "Movie.h"
 #include "Showtime.h"
+#include "Ticket.h"
 
 #include <string>
 #include <vector>
@@ -23,6 +24,8 @@ private:
     void showWarnings(const std::vector<std::string>& warnings) const;
     void displayMovieTable(const std::vector<Movie>& movies) const;
     void displayShowtimeTable(const std::vector<Showtime>& showtimes) const;
+    void displayTicketTable() const;
+    void displayTicket(const Ticket& ticket) const;
 
     void showMainMenu() const;
     void showMovieMenu();
@@ -36,6 +39,10 @@ private:
     void addShowtime();
     void showAllShowtimes();
     void searchShowtimesByMovie();
+    void buyTicket();
+    void refundTicket();
+    void queryTickets();
+    void showSeatMap();
 
 public:
     explicit UIManager(CinemaSystem& cinemaSystem);

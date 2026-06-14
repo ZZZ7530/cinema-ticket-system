@@ -19,6 +19,7 @@ private:
 
     std::string generateNextMovieId() const;
     std::string generateNextShowtimeId() const;
+    std::string generateNextTicketId() const;
 
 public:
     CinemaSystem();
@@ -46,6 +47,15 @@ public:
                          int cols);
     std::vector<Showtime> searchShowtimesByMovie(const std::string& keyword) const;
     std::string getMovieTitleById(const std::string& movieId) const;
+    const Showtime* findShowtimeById(const std::string& showtimeId) const;
+    Showtime* findShowtimeById(const std::string& showtimeId);
+
+    Ticket* purchaseTicket(const std::string& showtimeId,
+                           const std::string& seatNo,
+                           const std::string& ticketType,
+                           std::string& message);
+    bool refundTicket(const std::string& ticketId, std::string& message);
+    const Ticket* findTicketById(const std::string& ticketId) const;
 
     int getMovieCount() const;
     int getShowtimeCount() const;
